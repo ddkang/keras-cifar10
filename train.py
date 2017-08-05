@@ -83,12 +83,12 @@ datagen = ImageDataGenerator(
             vertical_flip=False)
 datagen.fit(x_train)
 
-sgd = SGD(lr=0.01, momentum=0.9, decay=0.0, nesterov=False)
+sgd = SGD(lr=0.001, momentum=0.9, decay=0.0, nesterov=False)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                     steps_per_epoch=x_train.shape[0] // batch_size,
                     epochs=1, validation_data=(x_test, y_test))
-for num_epochs, lr_rate in [(150, 0.1), (100, 0.01), (100, 0.001)]:
+for num_epochs, lr_rate in [(150, 0.01), (100, 0.001), ]:#(100, 0.001)]:
     sgd = SGD(lr=lr_rate, momentum=0.9, decay=0.0, nesterov=False)
     model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
