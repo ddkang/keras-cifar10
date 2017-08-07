@@ -64,13 +64,15 @@ def make_layer(stage, block, inp, numFilters, numBlocks, stride):
 def ResNet_builder(block, num_blocks, input_shape, num_classes):
     img_input = Input(shape=input_shape)
     x = my_conv(img_input, 64, (3, 3), padding='same', name='conv1')
-    x = BatchNormalization(axis = bn_axis, momentum=0.1, epsilon=BN_EPS, name='bn1')(x)
-    x = Activation('relu')(x)
     
     x = make_layer(1, block, x, 64, num_blocks[0], 1)
     x = make_layer(2, block, x, 128, num_blocks[1], 2)
     x = make_layer(3, block, x, 256, num_blocks[2], 2)
     x = make_layer(4, block, x, 512, num_blocks[3], 2)
+
+    x = BatchNormalization(axis = bn_axis, momentum=0.1, epsilon=BN_EPS, name='bn1')(x)
+    x = Activation('relu')(x)
+
     
     x = AveragePooling2D((4, 4), strides=4)(x)
     x = Flatten()(x)
