@@ -22,7 +22,7 @@ from keras.callbacks import Callback
 from keras.datasets import cifar10
 from keras import backend as K
 
-from resnet_builder import PreActResNet20
+from resnet_builder import *
 
 batch_size = 128
 num_epochs = 350
@@ -121,14 +121,16 @@ y_test = np_utils.to_categorical(y_test, num_classes)
 
 img_input = Input(shape=x_train.shape[1:])
 
-model = ResNet18(x_train.shape[1:], num_classes=num_classes)
-# model = PreActResNet20(x_train.shape[1:], num_classes=num_classes)
+# model = ResNet18(x_train.shape[1:], num_classes=num_classes)
+# model_name = 'cifar10_resnet18_pa'
+model = PreActResNet20(x_train.shape[1:], num_classes=num_classes)
+model_name = 'cifar10_resnet20_pa'
 
 
 if (K.image_data_format() == 'channels_first'):
-    csv_logger = CSV_Logger('train_cifar10_resnet18_pa_th.log', append=True)
+    csv_logger = CSV_Logger('train_%s_th.log' % (model_name), append=True)
 else:
-    csv_logger = CSV_Logger('train_cifar10_resnet18_pa_tf.log', append=True)
+    csv_logger = CSV_Logger('train_%s_tf.log' % (model_name), append=True)
 callbacks_list = [csv_logger]
 
 
@@ -140,8 +142,8 @@ datagen = ImageDataGenerator(
             samplewise_std_normalization=False,
             zca_whitening=False,
             rotation_range=0,
-            width_shift_range=0.1,
-            height_shift_range=0.1,
+            width_shift_range=0.125,
+            height_shift_range=0.125,
             fill_mode='constant',
             cval=0,
             horizontal_flip=True,
@@ -168,9 +170,9 @@ for num_epochs, lr_rate in [(90, 0.1), (45, 0.01), (45, 0.001)]:
 
 
 if (K.image_data_format() == 'channels_first'):
-    model.save('cifar10-resnet18-pa-th.h5')
+    model.save('%s-th.h5' % (model_name))
 else:
-    model.save('cifar10-resnet18-pa-tf.h5')
+    model.save('%s-tf.h5' % (model_name))
 
 scores = model.evaluate(x_test, y_test)
 print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
