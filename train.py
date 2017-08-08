@@ -22,7 +22,7 @@ from keras.callbacks import Callback
 from keras.datasets import cifar10
 from keras import backend as K
 
-from resnet_builder import ResNet18
+from resnet_builder import PreActResNet20
 
 batch_size = 128
 num_epochs = 350
@@ -122,6 +122,7 @@ y_test = np_utils.to_categorical(y_test, num_classes)
 img_input = Input(shape=x_train.shape[1:])
 
 model = ResNet18(x_train.shape[1:], num_classes=num_classes)
+# model = PreActResNet20(x_train.shape[1:], num_classes=num_classes)
 
 
 if (K.image_data_format() == 'channels_first'):
@@ -147,13 +148,13 @@ datagen = ImageDataGenerator(
             vertical_flip=False)
 datagen.fit(x_train)
 
-'''sgd = SGD(lr=0.001, momentum=0.9, decay=0.0, nesterov=False)
+sgd = SGD(lr=0.01, momentum=0.9, decay=0.0, nesterov=False)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
                     callbacks=callbacks_list,
                     steps_per_epoch=x_train.shape[0] // batch_size,
-                    epochs=1, validation_data=(x_test, y_test))'''
-for num_epochs, lr_rate in [(150, 0.1), (100, 0.01), (100, 0.001)]:
+                    epochs=1, validation_data=(x_test, y_test))
+for num_epochs, lr_rate in [(90, 0.1), (45, 0.01), (45, 0.001)]:
     sgd = SGD(lr=lr_rate, momentum=0.9, decay=0.0, nesterov=False)
     model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 

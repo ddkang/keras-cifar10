@@ -61,26 +61,31 @@ def make_layer(stage, block, inp, numFilters, numBlocks, stride):
         x = block(stage, chr(ord('b') + i), x, numFilters, 1, False)
     return x
 
-def ResNet_builder(block, num_blocks, input_shape, num_classes):
+def ResNet_builder(block, num_blocks, input_shape, num_classes, nbf=64):
     img_input = Input(shape=input_shape)
-    x = my_conv(img_input, 64, (3, 3), padding='same', name='conv1')
-    
-    x = make_layer(1, block, x, 64, num_blocks[0], 1)
+    x = my_conv(img_input, nbf, (3, 3), padding='same', name='conv1')
+
+    for i in xrange(len(num_blocks)):
+        x = make_layer(i + 1, block, x, nbf, num_blocks[i], (i != 0) + 1)
+        nbf *= 2
+    '''x = make_layer(1, block, x, 64, num_blocks[0], 1)
     x = make_layer(2, block, x, 128, num_blocks[1], 2)
     x = make_layer(3, block, x, 256, num_blocks[2], 2)
-    x = make_layer(4, block, x, 512, num_blocks[3], 2)
+    x = make_layer(4, block, x, 512, num_blocks[3], 2)'''
 
     x = BatchNormalization(axis = bn_axis, momentum=0.1, epsilon=BN_EPS, name='bn1')(x)
     x = Activation('relu')(x)
 
-    
-    x = AveragePooling2D((4, 4), strides=4)(x)
+    # FIXME
+    x = AveragePooling2D((8, 8))(x)
     x = Flatten()(x)
     x = Dense(num_classes, activation='softmax', name = 'dense')(x)
-    # x = Dense(num_classes, name = 'dense')(x)
 
     return Model(inputs=img_input, outputs=x)
 
    
 def ResNet18(input_shape, num_classes):
     return ResNet_builder(PreActBlock, [2, 2, 2, 2], input_shape, num_classes)
+
+def PreActResNet20(input_shape, num_classes):
+    return ResNet_builder(PreActBlock, [3, 3, 3], input_shape, num_classes, nbf=16)
