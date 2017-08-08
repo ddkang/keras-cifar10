@@ -76,8 +76,8 @@ def ResNet_builder(block, num_blocks, input_shape, num_classes, nbf=64):
     x = BatchNormalization(axis = bn_axis, momentum=0.1, epsilon=BN_EPS, name='bn1')(x)
     x = Activation('relu')(x)
 
-    # FIXME
-    x = AveragePooling2D((8, 8))(x)
+    block_shape = K.int_shape(x)
+    x = AveragePooling2D((block_shape[1], block_shape[2]))(x)
     x = Flatten()(x)
     x = Dense(num_classes, activation='softmax', name = 'dense')(x)
 
