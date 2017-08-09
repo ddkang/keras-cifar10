@@ -14,7 +14,7 @@ if (K.image_data_format() == 'channels_first'):
 else:
     bn_axis = 3
 
-BN_EPS = 0.00001
+BN_EPS = 1e-5
 
 def my_conv(inp, num_filters, kernel_size_tuple, strides=1, padding='valid', name='name'):
     if strides == 2 and kernel_size_tuple[0] != 1:
@@ -22,8 +22,12 @@ def my_conv(inp, num_filters, kernel_size_tuple, strides=1, padding='valid', nam
         x = Convolution2D(num_filters, kernel_size_tuple, strides=(2, 2),
                           use_bias=False, kernel_initializer='he_normal', name=name)(x)
     else:
-        x = Conv2D(num_filters, kernel_size_tuple, strides=strides, padding=padding,
-                   use_bias=False, kernel_initializer='he_normal', name=name)(inp)
+        if strides == 1:
+            x = keras.layers.convolutional.ZeroPadding2D()(inp)
+        else:
+            x = inp
+        x = Conv2D(num_filters, kernel_size_tuple, strides=strides, # padding=padding,
+                   use_bias=False, kernel_initializer='he_normal', name=name)(x)
     return x
 
 
@@ -68,10 +72,6 @@ def ResNet_builder(block, num_blocks, input_shape, num_classes, nbf=64):
     for i in xrange(len(num_blocks)):
         x = make_layer(i + 1, block, x, nbf, num_blocks[i], (i != 0) + 1)
         nbf *= 2
-    '''x = make_layer(1, block, x, 64, num_blocks[0], 1)
-    x = make_layer(2, block, x, 128, num_blocks[1], 2)
-    x = make_layer(3, block, x, 256, num_blocks[2], 2)
-    x = make_layer(4, block, x, 512, num_blocks[3], 2)'''
 
     x = BatchNormalization(axis = bn_axis, momentum=0.1, epsilon=BN_EPS, name='bn1')(x)
     x = Activation('relu')(x)
