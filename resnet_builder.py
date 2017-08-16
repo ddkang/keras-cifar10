@@ -69,7 +69,7 @@ def ResNet_builder(block, num_blocks, input_shape, num_classes, nbf=64):
     img_input = Input(shape=input_shape)
     x = my_conv(img_input, nbf, (3, 3), padding='same', name='conv1')
 
-    for i in xrange(len(num_blocks)):
+    for i in range(len(num_blocks)):
         x = make_layer(i + 1, block, x, nbf, num_blocks[i], (i != 0) + 1)
         nbf *= 2
 
